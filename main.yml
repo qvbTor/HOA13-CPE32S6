@@ -1,0 +1,53 @@
+---
+
+- hosts: all
+  become: True
+  tasks:
+
+    - name: Install ufw
+      apt:
+        name: ufw
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Start ufw
+      service:
+        name: ufw
+        state: started
+        enabled: true
+      when: ansible_distribution == "Ubuntu"
+
+    - name: block ip address in ubuntu
+      ufw:
+        rule: deny
+        proto: any
+        from_ip: 192.168.56.135
+      when: ansible_distribution == "Ubuntu"
+
+    - name: block ip address in centos
+      firewalld:
+        permanent: true
+        state: enabled
+        zone: public
+        source: 192.168.56.132
+      when: ansible_distribution == "Centos"
+
+    - block:
+
+      - name: checking firewall in ubuntu
+        shell: sudo ufw status
+        register: ufw_stat
+        when: ansible_distribution == "Ubuntu"
+
+      - debug: 
+          msg="{{ ufw_stat }}"
+
+    - block:
+
+      - name: checking firewall in centos
+        shell: sudo firewall-cmd --zone=public --list-all
+        register: firewalld_stat
+        when: ansible_distribution == "Centos"
+
+      - debug: 
+          msg="{{ firewalld_stat }}"
