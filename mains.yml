@@ -1,0 +1,23 @@
+---
+
+- hosts: all
+  become: True
+  tasks:
+
+    - name: block ip address in ubuntu
+      ufw:
+        rule: allow
+        proto: any
+        from_ip: 192.168.56.135
+      when: ansible_distribution == "Ubuntu"
+      
+    - block:
+
+      - name: checking firewall in ubuntu
+        shell: sudo ufw status
+        register: ufw_stat
+        when: ansible_distribution == "Ubuntu"
+
+      - debug: 
+          msg="{{ ufw_stat }}"
+
