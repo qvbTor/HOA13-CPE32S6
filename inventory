@@ -1,0 +1,2 @@
+[ubuntu]
+192.168.56.108 ansible_user="ubuntudesktop" 
